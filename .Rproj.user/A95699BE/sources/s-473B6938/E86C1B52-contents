@@ -1,0 +1,82 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+1) Loading Data 
+```{r}
+### Set root 
+getwd()
+# setwd()
+
+### csv 
+resp1 = read.csv('./CSV/Resp1.csv', header = T) # header = TRUE 
+head(resp1)
+class(resp1) #data/frame
+summary(resp1)
+
+### txt
+resp2 = read.table('./txt/csv.txt', header = T, sep = ';')
+head(resp2)
+class(resp2) #data.frame
+summary(resp1)
+
+### xls
+library(readxl)
+dfb <- read_excel('./xls/boston1.xls')
+head(dfb)
+summary(dfb)
+
+### Using RCurl to read in csv data hosted online on github and other sites 
+# install.packages('RCurl')
+library(RCurl)
+data1 = read.csv(text=getURL('https://raw.githubusercontent.com/sciruela/happiniess-Salaries/master/data.csv'))
+head(data1)
+summary(data1)
+
+### Zipfile 
+
+# Create a temp filename
+temp = tempfile() 
+
+# Use download.file() to fetch the file into the temp. file
+download.file('http://www.bls.gov/cex/pumd/data/comma/diary14.zip', temp)
+
+# Use unz() to extract the target file from temp. file 
+### exped142.csv
+zip_data2 = read.csv(unz(temp, 'diary14/expd142.csv'))
+
+# REmove the temp file via unlink()
+unlink(temp)
+
+zip_data2[1:5, 1:10]
+
+### Database 
+
+library(RSQLite)
+library(DBI)
+
+db = RSQLite::datasetsDb()
+dbListTables(db) # all the tables in the database 
+
+dbReadTable(db, "co2") # read in the CO2 table
+
+## filter the data
+dbGetQuery(db, 'SELECT* FROM co2 WHERE conc < 100')
+dbDisconnect(db)
+
+## Amazon food reviews
+setwd('F:\\DataMining_R\\3_LectureData\\database.sqlite')
+
+db = dbConnect(dbDrivver('SQLite'), 'database.sqlite')
+## database.sqlite is where our data are stored
+## connect to this using dbConnect 
+
+alltables = dbListTables(db)
+head(alltables)
+
+reviews <- dbGetQuery(db, 'SELECT * FROM reviews LIMIT 100')
+head(reviews)
+
+```
+
